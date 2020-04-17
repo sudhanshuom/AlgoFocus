@@ -14,8 +14,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -40,7 +38,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class SignUp extends AppCompatActivity {
 
@@ -102,6 +100,7 @@ public class SignUp extends AppCompatActivity {
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                 .setDisplayName(nam).build();
 
+                                        assert user != null;
                                         user.updateProfile(profileUpdates)
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
@@ -147,7 +146,7 @@ public class SignUp extends AppCompatActivity {
          * Action when Clicked on Facebook btn for log in.
          * */
         mCallbackManager = CallbackManager.Factory.create();
-        facebookSignIn.setReadPermissions(Arrays.asList("email"));
+        facebookSignIn.setReadPermissions(Collections.singletonList("email"));
         facebookSignIn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -227,6 +226,7 @@ public class SignUp extends AppCompatActivity {
             SharedPreferences sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE);
             SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
+            assert account != null;
             myEdit.putString("email", account.getEmail());
             myEdit.putString("name", account.getDisplayName());
 
@@ -253,7 +253,6 @@ public class SignUp extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.e("GSignin1", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             startActivity(new Intent(SignUp.this, MainActivity.class));
                             finish();
                         } else {
@@ -282,7 +281,6 @@ public class SignUp extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.e("fbsignhft2", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             startActivity(new Intent(SignUp.this, MainActivity.class));
                             LoginManager.getInstance().logOut();
                             dialog.cancel();

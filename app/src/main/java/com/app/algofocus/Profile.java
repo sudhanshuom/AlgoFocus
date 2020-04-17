@@ -1,42 +1,41 @@
 package com.app.algofocus;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,11 +57,8 @@ public class Profile extends AppCompatActivity {
     };
     FirebaseAuth firebaseAuth;
     LocationManager manager;
-    LocationRequest mLocationRequest;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
-    double latitude = 0, longitude = 0;
-    long minTime = 3000;
     boolean wasGpsOff = false;
     TextView address;
     ProgressBar loading;
@@ -96,14 +92,14 @@ public class Profile extends AppCompatActivity {
         assert manager != null;
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             wasGpsOff = true;
-            buildAlertMessageNoGps();
+            displayLocationSettingsRequest();
         } else {
             if (!hasPermissions(this, PERMISSIONS)) {
                 new AlertDialog
                         .Builder(this)
                         .setCancelable(false)
                         .setTitle("Permissions not provided")
-                        .setMessage("This app uses location permission. click okay to grant the permission.")
+                        .setMessage("This app uses location permission. Click okay to grant the permission.")
                         .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -116,7 +112,7 @@ public class Profile extends AppCompatActivity {
 
                                 }
                             }
-                        });
+                        }).show();
             }
         }
 
@@ -147,9 +143,7 @@ public class Profile extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps();
-        } else if (wasGpsOff) {
+        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && wasGpsOff) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -161,19 +155,19 @@ public class Profile extends AppCompatActivity {
         }
     }
 
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Your GPS seems to be disabled, enable it?")
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
-    }
+//    private void buildAlertMessageNoGps() {
+//        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setMessage("Your GPS seems to be disabled, enable it?")
+//                .setCancelable(false)
+//                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+//                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+//
+//                    }
+//                });
+//        final AlertDialog alert = builder.create();
+//        alert.show();
+//    }
 
     public static boolean hasPermissions(Context context, String... permissions) {
 
@@ -208,8 +202,8 @@ public class Profile extends AppCompatActivity {
     }
 
     /*
-    * this function run when last known location is null
-    * */
+     * this function will run when last known location is null
+     * */
     private void requestNewLocationData() {
 
         LocationRequest mLocationRequest = new LocationRequest();
@@ -227,13 +221,12 @@ public class Profile extends AppCompatActivity {
     }
 
     /*
-    * For Getting address from latitude and longitude.
-    * */
+     * For Getting address from latitude and longitude.
+     * */
     private void getAddress(double latitude, double longitude) {
 
         Geocoder geoCoder = new Geocoder(Profile.this, Locale.getDefault());
         List<Address> addresses;
-        int x = 0;
         try {
             addresses = geoCoder.getFromLocation(latitude, longitude, 1);
             if (addresses == null)
@@ -247,6 +240,75 @@ public class Profile extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /*
+     * Turn on location services without navigating to settings page.
+     * */
+    private void displayLocationSettingsRequest() {
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(Profile.this)
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(@NonNull LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        Log.e("dsplocst1", "All location settings are satisfied.");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        Log.e("dsplocst2", "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
+                        new AlertDialog
+                                .Builder(Profile.this)
+                                .setCancelable(false)
+                                .setTitle("GPS is disabled")
+                                .setMessage("This app uses GPS.")
+                                .setPositiveButton("Log Out", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        FirebaseAuth.getInstance().signOut();
+                                        startActivity(new Intent(Profile.this, MainActivity.class));
+                                        finish();
+                                    }
+                                }).show();
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the result
+                            // in onActivityResult().
+                            status.startResolutionForResult(Profile.this, 199);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.e("dsplocst3", "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Log.e("dsplocst4", "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
+                        new AlertDialog
+                                .Builder(Profile.this)
+                                .setCancelable(false)
+                                .setTitle("GPS is disable")
+                                .setMessage("This app uses GPS.")
+                                .setPositiveButton("Log Out", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        FirebaseAuth.getInstance().signOut();
+                                        startActivity(new Intent(Profile.this, MainActivity.class));
+                                        finish();
+                                    }
+                                }).show();
+                        break;
+                }
+            }
+        });
     }
 
 }

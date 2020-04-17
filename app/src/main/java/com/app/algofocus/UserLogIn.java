@@ -21,7 +21,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -39,7 +38,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class UserLogIn extends AppCompatActivity {
 
@@ -80,7 +79,7 @@ public class UserLogIn extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isValid()){
+                if (isValid()) {
                     String em = email.getText().toString();
                     String pas = pass.getText().toString();
 
@@ -95,7 +94,6 @@ public class UserLogIn extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         // Sign in success, update UI with the signed-in user's information
                                         Log.d("EPSignIn", "signInWithEmail:success");
-                                        FirebaseUser user = mAuth.getCurrentUser();
                                         startActivity(new Intent(UserLogIn.this, MainActivity.class));
                                         dialog.cancel();
                                         finish();
@@ -115,8 +113,8 @@ public class UserLogIn extends AppCompatActivity {
         });
 
         /*
-        * Action when Clicked on Google btn for log in.
-        * */
+         * Action when Clicked on Google btn for log in.
+         * */
         googleSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,7 +133,7 @@ public class UserLogIn extends AppCompatActivity {
          * Action when Clicked on Facebook btn for log in.
          * */
         mCallbackManager = CallbackManager.Factory.create();
-        facebookSignIn.setReadPermissions(Arrays.asList("email"));
+        facebookSignIn.setReadPermissions(Collections.singletonList("email"));
         facebookSignIn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -158,12 +156,12 @@ public class UserLogIn extends AppCompatActivity {
 
     }
 
-    private boolean isValid(){
-        if(email.getText().toString().trim().length() == 0){
+    private boolean isValid() {
+        if (email.getText().toString().trim().length() == 0) {
             email.startAnimation(shakeAnimation);
             email.setError("Enter valid Email");
             return false;
-        } else if(pass.getText().toString().trim().length() == 0){
+        } else if (pass.getText().toString().trim().length() == 0) {
             pass.startAnimation(shakeAnimation);
             pass.setError("Enter valid password");
             return false;
@@ -202,6 +200,7 @@ public class UserLogIn extends AppCompatActivity {
 
             SharedPreferences.Editor myEdit = sharedPreferences.edit();
 
+            assert account != null;
             myEdit.putString("email", account.getEmail());
             myEdit.putString("name", account.getDisplayName());
 
@@ -229,7 +228,6 @@ public class UserLogIn extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.e("GSignin1", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             startActivity(new Intent(UserLogIn.this, MainActivity.class));
                             finish();
                         } else {
@@ -258,7 +256,6 @@ public class UserLogIn extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.e("fbsignhft2", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             startActivity(new Intent(UserLogIn.this, MainActivity.class));
                             LoginManager.getInstance().logOut();
                             dialog.cancel();

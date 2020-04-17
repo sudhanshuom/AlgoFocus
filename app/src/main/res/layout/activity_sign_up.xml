@@ -9,72 +9,72 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_margin="16dp">
+        android:layout_margin="16dp"
+        android:layout_marginTop="16dp">
 
         <RelativeLayout
             android:id="@+id/hed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:background="#FFCEBF">
+            android:background="#FFCEBF"
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Already have an account?"
-                android:textSize="16sp"
-                android:layout_toStartOf="@id/allogin"
+                android:layout_centerVertical="true"
                 android:layout_marginEnd="5dp"
-                android:layout_centerVertical="true"/>
+                android:layout_toStartOf="@id/allogin"
+                android:text="Already have an account?"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/allogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log in Here"
+                android:layout_alignParentEnd="true"
                 android:background="@drawable/button_selector"
                 android:padding="10dp"
-                android:textColor="#FFFFFF"
-                android:layout_alignParentEnd="true"/>
+                android:text="Log in Here"
+                android:textColor="#FFFFFF" />
 
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
             android:layout_below="@id/hed"
             android:layout_gravity="center"
-            android:background="#EEEEEE">
+            android:background="#EEEEEE"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/tv5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:text="Connect with "
-                android:textAlignment="center"
-                android:layout_marginTop="10dp" />
+                android:textAlignment="center" />
 
             <include
                 android:id="@+id/sgm"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_below="@id/tv5"
                 layout="@layout/sign_in_methods"
-                android:layout_marginTop="5dp"
-                android:layout_centerHorizontal="true"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv5"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp" />
 
             <TextView
                 android:id="@+id/textView6"
+                style="@style/TextAppearance.AppCompat.Body1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_below="@id/sgm"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
                 android:text="Or \n Please enter your details"
-                android:textAlignment="center"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:layout_centerHorizontal="true"/>
+                android:textAlignment="center" />
 
             <EditText
                 android:id="@+id/Appsignupfn"
@@ -123,9 +123,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:background="@drawable/button_selector"
                 android:text="Sign up"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/button_selector"/>
+                android:textColor="#FFFFFF" />
 
         </RelativeLayout>
 
