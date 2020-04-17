@@ -1,0 +1,2 @@
+rootProject.name='AlgoFocus'
+include ':app'
