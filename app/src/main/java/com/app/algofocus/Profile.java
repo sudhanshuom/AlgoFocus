@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -90,30 +91,28 @@ public class Profile extends AppCompatActivity {
          * */
         manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         assert manager != null;
-        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (!hasPermissions(this, PERMISSIONS)) {
+            new AlertDialog
+                    .Builder(this)
+                    .setCancelable(false)
+                    .setTitle("Permissions not provided")
+                    .setMessage("This app uses location permission. Click okay to grant the permission.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (ActivityCompat.checkSelfPermission(Profile.this,
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                    != PackageManager.PERMISSION_GRANTED) {
+
+                                ActivityCompat.requestPermissions(Profile.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+                            }
+                        }
+                    }).show();
+        } else if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             wasGpsOff = true;
             displayLocationSettingsRequest();
-        } else {
-            if (!hasPermissions(this, PERMISSIONS)) {
-                new AlertDialog
-                        .Builder(this)
-                        .setCancelable(false)
-                        .setTitle("Permissions not provided")
-                        .setMessage("This app uses location permission. Click okay to grant the permission.")
-                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (ActivityCompat.checkSelfPermission(Profile.this,
-                                        android.Manifest.permission.ACCESS_FINE_LOCATION)
-                                        != PackageManager.PERMISSION_GRANTED) {
-
-                                    ActivityCompat.requestPermissions(Profile.this,
-                                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-
-                                }
-                            }
-                        }).show();
-            }
         }
 
         if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasPermissions(this, PERMISSIONS)) {
@@ -152,6 +151,74 @@ public class Profile extends AppCompatActivity {
                     finish();
                 }
             }, 700);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION : {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+
+                    if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        wasGpsOff = true;
+                        displayLocationSettingsRequest();
+                    } else if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        mLocationCallback = new LocationCallback() {
+                            @Override
+                            public void onLocationResult(LocationResult locationResult) {
+                                Location mLastLocation = locationResult.getLastLocation();
+                                Log.e("lastlocf", mLastLocation.getLatitude() + "");
+                                Log.e("lastlocf", mLastLocation.getLongitude() + "");
+
+                            }
+
+                        };
+                        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+                        getLastLocation();
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    new AlertDialog
+                            .Builder(this)
+                            .setCancelable(false)
+                            .setTitle("Permissions not provided")
+                            .setMessage("This app uses location permission. Click okay to grant the permission.")
+                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if (ActivityCompat.checkSelfPermission(Profile.this,
+                                            android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                            != PackageManager.PERMISSION_GRANTED) {
+
+                                        ActivityCompat.requestPermissions(Profile.this,
+                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Log Out", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    FirebaseAuth.getInstance().signOut();
+                                    startActivity(new Intent(Profile.this, MainActivity.class));
+                                    finish();
+                                }
+                            }).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
@@ -266,6 +333,7 @@ public class Profile extends AppCompatActivity {
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
                         Log.e("dsplocst1", "All location settings are satisfied.");
+                        getLastLocation();
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         Log.e("dsplocst2", "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
@@ -274,9 +342,15 @@ public class Profile extends AppCompatActivity {
                                 .setCancelable(false)
                                 .setTitle("GPS is disabled")
                                 .setMessage("This app uses GPS.")
-                                .setPositiveButton("Log Out", new DialogInterface.OnClickListener() {
+                                .setPositiveButton("Turn On", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
+                                        displayLocationSettingsRequest();
+                                    }
+                                })
+                                .setNegativeButton("Log Out", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
                                         FirebaseAuth.getInstance().signOut();
                                         startActivity(new Intent(Profile.this, MainActivity.class));
                                         finish();
