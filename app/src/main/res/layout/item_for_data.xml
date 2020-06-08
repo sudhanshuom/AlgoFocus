@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/ddnametv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NAME:"
+            android:textColor="#222222"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/dname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XXXXXXXXXX XXXXX"
+            android:textSize="20sp"
+            android:layout_marginStart="16dp"
+            android:layout_toEndOf="@+id/ddnametv"
+            android:textColor="#222222"/>
+
+        <TextView
+            android:id="@+id/ddamounttv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ddnametv"
+            android:layout_marginTop="10dp"
+            android:text="AMOUNT:"
+            android:textColor="#222222"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/damount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XXX"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:layout_alignBaseline="@+id/ddamounttv"
+            android:layout_toEndOf="@+id/ddamounttv"
+            android:textColor="#222222"/>
+
+        <TextView
+            android:id="@+id/ddatetv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ddamounttv"
+            android:layout_marginTop="10dp"
+            android:text="DATE:"
+            android:textColor="#222222"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ddate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XXX"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:layout_alignBaseline="@+id/ddatetv"
+            android:layout_toEndOf="@+id/ddatetv"
+            android:textColor="#222222"/>
+
+        <ImageView
+            android:id="@+id/edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="XXX"
+            android:clickable="true"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBaseline="@+id/damount"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/edit"
+            android:textColor="#222222"
+            android:focusable="true"
+            android:background="@drawable/grey_selector"/>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

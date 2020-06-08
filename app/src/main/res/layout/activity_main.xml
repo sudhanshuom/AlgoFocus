@@ -15,7 +15,7 @@
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="algo"
+            android:text="Sustain"
             android:textColor="#FFFFFF"
             android:textSize="46sp"
             android:textStyle="bold" />
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/textView4"
-            android:text="focus"
+            android:text="Hill"
             android:textColor="#FFFFFF"
             android:textSize="45sp" />
 
